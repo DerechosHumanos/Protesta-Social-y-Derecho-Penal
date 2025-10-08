@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Derechos Humanos - Camilo Cuadrado y Daniel Anturi</title>
+  <style>
+    :root{
+      --bg1: #0d1a36;
+      --bg2: #3B74FF;
+      --card: rgba(255,255,255,0.06);
+      --accent: #ffffff;
+      --glass: rgba(255,255,255,0.06);
+      --text: #e6eef8;
+      --muted: #b7c0d8;
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+    .card{
+      width:min(900px,96%);
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius:var(--radius);
+      padding:28px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      backdrop-filter: blur(6px) saturate(120%);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:64px;height:64px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent), #c4c4c4);
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:#1b1b1b;font-size:22px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    }
+    h1{margin:0;font-size:28px;letter-spacing:0.4px}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+
+    .player{
+      margin-top:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);
+      display:flex;flex-direction:column;gap:12px;
+    }
+
+    .controls{display:flex;align-items:center;gap:12px}
+    button.play{
+      appearance:none;border:0;padding:12px 16px;border-radius:10px;font-weight:600;cursor:pointer;
+      background:linear-gradient(90deg,var(--accent), #afafaf);color:#111;
+      box-shadow: 0 6px 18px rgba(245, 58, 58, 0.12);
+    }
+    .time{font-family: monospace;color:var(--muted);font-size:13px}
+
+    .progress-wrap{flex:1;display:flex;align-items:center;gap:12px}
+    .progress{
+      position:relative;flex:1;height:10px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;cursor:pointer;
+    }
+    .progress > .bar{position:absolute;left:0;top:0;bottom:0;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--accent), #ffd166);}
+    .volume{display:flex;align-items:center;gap:8px}
+    input[type=range]{appearance:none;width:110px}
+    input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:rgba(255,255,255,0.08)}
+    input[type=range]::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:white;box-shadow:0 2px 6px rgba(0,0,0,0.3);margin-top:-4px}
+
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .meta .description{color:var(--muted);font-size:14px}
+
+    footer{margin-top:16px;color:var(--muted);font-size:13px;text-align:right}
+
+    @media (max-width:520px){
+      .logo{width:56px;height:56px}
+      h1{font-size:22px}
+      .controls{flex-direction:column;align-items:stretch}
+      input[type=range]{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <header>
+      <div class="logo"><h1>✊</h1></div>
+      <div>
+        <h1>Protesta Social y Derecho Penal</h1>
+        <p class="lead">Limón Agrio.</p>
+      </div>
+    </header>
+
+    <section class="player" aria-label="Reproductor de audio">
+      <!-- Reemplaza la URL en el atributo src del elemento audio por tu archivo mp3/ogg -->
+      <audio id="audio" preload="metadata" src="DDHH.mp3"></audio>
+
+      <div class="controls">
+        <button class="play" id="playBtn" aria-pressed="false">Reproducir</button>
+        <div class="progress-wrap">
+          <div class="progress" id="progress">
+            <div class="bar" id="bar"></div>
+          </div>
+        </div>
+        <div class="time" id="time">0:00 / 0:00</div>
+      </div>
+
+      <div class="meta">
+        <div class="description">Derechos Humanos - Camilo Cuadrado y Daniel Anturi.</div>
+        <div class="volume">
+          <label for="vol" class="sr-only">Volumen</label>
+          <input id="vol" type="range" min="0" max="1" step="0.01" value="1">
+        </div>
+      </div>
+    </section>
+
+    <footer>Un podcast dedicado a la exploración de los derechos humanos en América Latina.</footer>
+  </main>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playBtn');
+    const bar = document.getElementById('bar');
+    const progress = document.getElementById('progress');
+    const timeEl = document.getElementById('time');
+    const vol = document.getElementById('vol');
+
+    function formatTime(s){
+      if (!isFinite(s)) return '0:00';
+      const mm = Math.floor(s/60);
+      const ss = Math.floor(s%60).toString().padStart(2,'0');
+      return mm + ':' + ss;
+    }
+
+    audio.addEventListener('loadedmetadata', () => {
+      timeEl.textContent = `0:00 / ${formatTime(audio.duration)}`;
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const pct = (audio.currentTime / audio.duration) * 100 || 0;
+      bar.style.width = pct + '%';
+      timeEl.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playBtn.textContent = 'Pausa';
+        playBtn.setAttribute('aria-pressed','true');
+      } else {
+        audio.pause();
+        playBtn.textContent = 'Reproducir';
+        playBtn.setAttribute('aria-pressed','false');
+      }
+    });
+
+    progress.addEventListener('click', (e) => {
+      const rect = progress.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(1, x / rect.width));
+      audio.currentTime = pct * audio.duration;
+    });
+
+    vol.addEventListener('input', () => { audio.volume = vol.value; });
+
+    document.body.addEventListener('keydown', (e)=>{
+      if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT'){
+        e.preventDefault();
+        playBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
